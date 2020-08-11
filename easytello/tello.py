@@ -67,15 +67,19 @@ class Tello:
         # Runs while 'stream_state' is True
         while self.stream_state:
             ret, frame = cap.read()
-            cv2.imshow('DJI Tello', frame)
+            self.lastframe = frame
+            #cv2.imshow('DJI Tello', frame) #window消す
 
             # Video Stream is closed if escape key is pressed
             k = cv2.waitKey(1) & 0xFF
             if k == 27:
                 break
         cap.release()
-        cv2.destroyAllWindows()
-    
+        #cv2.destroyAllWindows()
+
+    def read(self):
+        return self.lastframe    
+
     def wait(self, delay: float):
         # Displaying wait message (if 'debug' is True)
         if self.debug is True:
