@@ -6,12 +6,12 @@ with open('README.md', 'r') as fh:
 setuptools.setup(
     name='easytello',
     version='0.0.7',
-    author='Ezra Fielding',
-    author_email='ezra.fielding@gmail.com',
+    author='16569',
+    author_email='osamu_cyber@me.com',
     description='An easy framework to support DJI Tello scripting in Python 3',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/Virodroid/easyTello',
+    url='https://github.com/16569/easyTello',
     packages=setuptools.find_packages(),
     install_requires=[
         'opencv-python'

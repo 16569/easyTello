@@ -12,7 +12,7 @@ pip install easytello
 ```
 or to install from cloned source:
 ```
-$ git clone https://github.com/Virodroid/easyTello.git
+$ git clone https://github.com/16569/easyTello
 $ cd easyTello
 $ python setup.py install
 ```
