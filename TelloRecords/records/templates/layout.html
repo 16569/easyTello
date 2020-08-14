@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="header-block">
+        TelloRecords
+    </div>
+    <div class="content-block">
+        <h1>{{ title }}</h1>
+        {% if success_message %}
+        <div class="msg-success">{{ success_message }}</div>
+        {% endif %}
+        {% if warning_message %}
+        <div class="msg-warning">{{ warning_message }}</div>
+        {% endif %}
+        {% if error_message %}
+        <div class="msg-error">{{ error_message }}</div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block content %}
+<table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>QRCode</th>
+        <th>IsDone</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if qrcodes %}
+        {% for qr in qrcodes %}
+          <tr>
+            <td>{{ qr.record_id }}</td>
+            <td>{{ qr.qr_code }}</td>
+            <td>{{ qr.is_done }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan=3>No QRs.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% endblock %}

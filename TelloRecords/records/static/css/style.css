@@ -1,0 +1,12 @@
+table { border-collapse: collapse; margin-bottom: .5rem; }
+table th, table td { border: 1px solid #999; padding: .1rem .3rem; }
+table th { background-color: #ddd; }
+button { line-height: 1.2rem; min-width: 6rem; }
+* { margin: 0; padding: 0; }
+.header-block { background-color: #000; color: #fff; line-height: 2rem;
+    font-weight: bold; padding: 0 .5rem; }
+.menu-block { background-color: #ddd; line-height: 2rem; padding: 0 .5rem; }
+.content-block { padding: 0 .5rem; }
+input[type="text"], select { border: 1px solid #ccc; height: 1.5rem;
+    border-radius: .2rem; padding: 0 .3rem; width: 20rem; }
+input[readonly] { border: 0; }
