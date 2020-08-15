@@ -1,29 +1,64 @@
 import json
 import requests
 
-URL = "http://127.0.0.1/qrcodes/jsontest"
-sess = requests.session()
+# URL = "http://127.0.0.1/qrcodes/jsontest"
+# sess = requests.session()
 
-print(sess.get(URL))
+# print(sess.get(URL))
 
-if 'csrftoken' in sess.cookies:
-    # Django 1.6 and up
-    csrftoken = sess.cookies['csrftoken']
-else:
-    # older versions
-    csrftoken = sess.cookies['csrf']
+# if 'csrftoken' in sess.cookies:
+#     # Django 1.6 and up
+#     csrftoken = sess.cookies['csrftoken']
+# else:
+#     # older versions
+#     csrftoken = sess.cookies['csrf']
 
-# ヘッダ
-headers = {'Content-type': 'application/json', "X-CSRFToken": csrftoken}
+# # ヘッダ
+# headers = {'Content-type': 'application/json', "X-CSRFToken": csrftoken}
 
-# 送信データ
-prm = {"param1": "python"}
+# # 送信データ
+# prm = {"param1": "python"}
 
-# JSON変換
-params = json.dumps(prm)
+# # JSON変換
+# params = json.dumps(prm)
 
-# POST送信
-res = sess.post(URL, data=params, headers=headers)
+# # POST送信
+# res = sess.post(URL, data=params, headers=headers)
 
-# 戻り値を表示
-print(json.loads(res.text))
+# # 戻り値を表示
+# print(json.loads(res.text))
+
+class HTTPRequest:
+    def __init__(self):
+        self.sended = []
+        self.URL = "http://127.0.0.1/qrcodes/jsontest"
+        self.sess = requests.session()
+
+        print(self.sess.get(self.URL))
+
+        if 'csrftoken' in self.sess.cookies:
+            # Django 1.6 and up
+            self.csrftoken = self.sess.cookies['csrftoken']
+        else:
+            # older versions
+            self.csrftoken = self.sess.cookies['csrf']
+
+        # ヘッダ
+        self.headers = {'Content-type': 'application/json', "X-CSRFToken": self.csrftoken}
+
+    def send(self, qrcode):
+        if self.sended.count(qrcode) > 0:
+            return
+        
+        # 送信データ
+        prm = {"param1": qrcode}
+
+        # JSON変換
+        params = json.dumps(prm)
+
+        # POST送信
+        res = self.sess.post(self.URL, data=params, headers=self.headers)
+
+        self.sended.append(qrcode)
+        # 戻り値を表示
+        #print(json.loads(res.text))
