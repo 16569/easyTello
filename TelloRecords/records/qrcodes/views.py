@@ -31,8 +31,10 @@ def receive(request):
         #qr.qr_code = request.POST['qr_code']
         qr.is_done = "1"
         qr.save()
-    except qr.DoesNotExist:
-        qr = None
+    except QR.DoesNotExist:
+        new_id = QR.objects.count() + 1
+        new_qr = QR(record_id=new_id, qr_code=receive_qr, is_done="1")
+        new_qr.save()
 
     # JSONに変換して戻す
     ret = {"data": "param1:" + datas["param1"]}
