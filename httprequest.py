@@ -29,9 +29,9 @@ import requests
 # print(json.loads(res.text))
 
 class HTTPRequest:
-    def __init__(self):
+    def __init__(self, url):
         self.sended = []
-        self.URL = "http://127.0.0.1/qrcodes/jsontest"
+        self.URL = url
         self.sess = requests.session()
 
         print(self.sess.get(self.URL))
@@ -46,7 +46,7 @@ class HTTPRequest:
         # ヘッダ
         self.headers = {'Content-type': 'application/json', "X-CSRFToken": self.csrftoken}
 
-    def send(self, qrcode):
+    def send_qr(self, qrcode):
         if self.sended.count(qrcode) > 0:
             return
         
