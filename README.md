@@ -3,6 +3,6 @@
 [![liscence](https://img.shields.io/pypi/l/easytello.svg)](https://pypi.org/project/easytello/)
 
 # Future
-## 飛行計画エディタ
-## フレームのセーブ機能
-## 接続のリトライ機能
+飛行計画エディタ
+フレームのセーブ機能
+接続のリトライ機能
