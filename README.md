@@ -3,6 +3,8 @@
 [![liscence](https://img.shields.io/pypi/l/easytello.svg)](https://pypi.org/project/easytello/)
 
 # Future
+ハードコーディング箇所の外部ファイル化
+
 飛行計画エディタ
 
 フレームのセーブ機能
