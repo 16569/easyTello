@@ -1,5 +1,6 @@
 import json
 import requests
+import numpy as np
 
 # URL = "http://127.0.0.1/qrcodes/jsontest"
 # sess = requests.session()
@@ -46,12 +47,12 @@ class HTTPRequest:
         # ヘッダ
         self.headers = {'Content-type': 'application/json', "X-CSRFToken": self.csrftoken}
 
-    def send_qr(self, qrcode):
+    def send_qr(self, qrcode, pos: np.ndarray):
         if self.sended.count(qrcode) > 0:
             return
         
         # 送信データ
-        prm = {"param1": qrcode}
+        prm = {"qrcode": qrcode, "pos_x": pos.x, "pos_y": pos.y, "pos_z": pos.z}
 
         # JSON変換
         params = json.dumps(prm)

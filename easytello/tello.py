@@ -3,9 +3,15 @@ import threading
 import time
 import cv2
 from easytello.stats import Stats
+from easytello.tello_control import TelloControl
 
 class Tello:
     def __init__(self, tello_ip: str='192.168.10.1', debug: bool=True):
+        
+        # 追加
+        self.lastframe = None
+        self.controller: TelloControl = None
+        
         # Opening local UDP port on 8889 for Tello communication
         self.local_ip = ''
         self.local_port = 8889
@@ -30,6 +36,9 @@ class Tello:
         # Setting Tello to command mode
         self.command()
 
+    def set_controller(self, controller: TelloControl):
+        self.controller = controller
+
     def send_command(self, command: str, query: bool =False):
         # New log entry created for the outbound command
         self.log.append(Stats(command, len(self.log)))
@@ -51,15 +60,22 @@ class Tello:
         # Prints out Tello response (if 'debug' is True)
         if self.debug is True and query is False:
             print('Response: {}'.format(self.log[-1].get_response()))
-
+    
     def _receive_thread(self):
         while True:
             # Checking for Tello response, throws socket error
             try:
                 self.response, ip = self.socket.recvfrom(1024)
                 self.log[-1].add_response(self.response)
+                if self.controller is not None:
+                    self.controller.on_success()
             except socket.error as exc:
                 print('Socket error: {}'.format(exc))
+                if self.controller is not None:
+                    self.controller.on_missing()
+
+    def get_position(self):
+        return self.controller.get_position()
 
     def _video_thread(self):
         # Creating stream capture object
