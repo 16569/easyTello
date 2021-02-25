@@ -1,9 +1,11 @@
 """Main"""
 import time
-import msvcrt
+# import msvcrt
 import os
 import subprocess
 import cv2
+import sqlite3
+import sys
 import numpy as np
 from pyzbar import pyzbar
 from easytello.tello import Tello
@@ -19,7 +21,7 @@ def main():
     #|パラメータ
     #|--固定ルートモード
     fixed_mode = True
-    max_height = 50    # [cm]
+    max_height = 80    # [cm]
     max_LR = 100        # [cm]
     height_step = 1     # 段差数
     #|--HTTPリクエスト
@@ -38,11 +40,82 @@ def main():
     # #ブラウザ起動
     # os.system("start http://127.0.0.1/qrcodes/")
 
+
     drone = Tello()
     drone.streamon()
     
     controller = TelloControl()
     controller.append(CoCo(lambda : drone.set_speed(10)))
+
+    # DB取得(出庫時想定)
+    if len(sys.argv) >= 2:
+
+        fixed_mode = False
+
+        dbname = './TelloRecords/records/db.sqlite3'
+        conn = sqlite3.connect(dbname)
+        cur = conn.cursor()
+        try:
+            sql = "select pos_x, pos_y, pos_z from qrcodes_qr"
+            sql += " where qr_code = '{}'".format(sys.argv[1])
+            cur.execute(sql)
+        except Exception as ex:
+            print('SQL ERROR: {}'.format(ex))
+        finally:
+            # print(cur.fetchall())
+            
+            target_pos = cur.fetchall()
+            print(target_pos)
+            if len(target_pos[0]) == 3:
+
+                controller.append(CoCo(drone.takeoff))
+
+                target_x: int = target_pos[0][0]
+                target_y: int = target_pos[0][1]
+                target_z: int = target_pos[0][2]
+                
+                move_flg: bool = np.abs(target_x) >= 20
+                pls_flg: bool = target_x > 0
+                if move_flg & pls_flg:
+                    controller.append(CoCo(lambda : drone.right(target_x), np.array([target_x, 0, 0])))
+                if move_flg & pls_flg == False:
+                    controller.append(CoCo(lambda : drone.left(-target_x), np.array([target_x, 0, 0])))
+                move_flg = np.abs(target_y) >= 20
+                pls_flg = target_y > 0
+                if move_flg & pls_flg:
+                    controller.append(CoCo(lambda : drone.up(target_y), np.array([0, target_y, 0])))
+                if move_flg & pls_flg == False:
+                    controller.append(CoCo(lambda : drone.down(-target_y), np.array([0, target_y, 0])))
+                move_flg = np.abs(target_z) >= 20
+                pls_flg = target_z > 0
+                if move_flg & pls_flg:
+                    controller.append(CoCo(lambda : drone.forward(target_z), np.array([0, 0, target_z])))
+                if move_flg & pls_flg == False:
+                    controller.append(CoCo(lambda : drone.back(-target_z), np.array([0, 0, target_z])))
+                
+                move_flg = np.abs(target_z) >= 20
+                pls_flg = target_z > 0
+                if move_flg & pls_flg:
+                    controller.append(CoCo(lambda : drone.back(target_z), np.array([0, 0, -target_z])))
+                if move_flg & pls_flg == False:
+                    controller.append(CoCo(lambda : drone.forward(-target_z), np.array([0, 0, -target_z])))
+                move_flg = np.abs(target_y) >= 20
+                pls_flg = target_y > 0
+                if move_flg & pls_flg:
+                    controller.append(CoCo(lambda : drone.down(target_y), np.array([0, -target_y, 0])))
+                if move_flg & pls_flg == False:
+                    controller.append(CoCo(lambda : drone.up(-target_y), np.array([0, -target_y, 0])))
+                move_flg: bool = np.abs(target_x) >= 20
+                pls_flg: bool = target_x > 0
+                if move_flg & pls_flg:
+                    controller.append(CoCo(lambda : drone.left(target_x), np.array([-target_x, 0, 0])))
+                if move_flg & pls_flg == False:
+                    controller.append(CoCo(lambda : drone.right(-target_x), np.array([-target_x, 0, 0])))
+
+                controller.append(CoCo(drone.land))
+
+            cur.close()
+            conn.close()
 
     if fixed_mode:
         controller.append(CoCo(drone.takeoff))
@@ -50,7 +123,7 @@ def main():
         controller.append(CoCo(lambda : drone.up(max_height), np.array([0, max_height, 0])))
         for i in range(height_step):
             if i % 2 == 0:
-                drone.left(max_LR)
+                # drone.left(max_LR)
                 controller.append(CoCo(lambda : drone.left(max_LR), np.array([-max_LR, 0, 0])))
             else:
                 controller.append(CoCo(lambda : drone.right(max_LR), np.array([max_LR, 0, 0])))
@@ -85,33 +158,33 @@ def main():
                     if request_enable:
                         req.send_qr(str_dec_obj, pos)
             
-            # キー入力
-            if msvcrt.kbhit():
-                kb = msvcrt.getch()
-                key = kb.decode()
-                if key == 't':      # 離陸
-                    drone.takeoff()
-                elif key == 'l':    # 着陸
-                    drone.land()
-                elif key == 'w':    # 前進
-                    drone.forward(50)
-                elif key == 's':    # 後進
-                    drone.back(50)
-                elif key == 'a':    # 左移動
-                    drone.left(50)
-                elif key == 'd':    # 右移動
-                    drone.right(50)
-                elif key == 'q':    # 左旋回
-                    drone.ccw(50)
-                elif key == 'e':    # 右旋回
-                    drone.cw(50)
-                elif key == 'r':    # 上昇
-                    drone.up(50)
-                elif key == 'f':    # 下降
-                    drone.down(50)
-                elif key == 'p':    # 任意のタイミングでストップ
-                    #drone.send_command('stop')
-                    drone.send_command('emergency')
+            # # キー入力
+            # if msvcrt.kbhit():
+            #     kb = msvcrt.getch()
+            #     key = kb.decode()
+            #     if key == 't':      # 離陸
+            #         drone.takeoff()
+            #     elif key == 'l':    # 着陸
+            #         drone.land()
+            #     elif key == 'w':    # 前進
+            #         drone.forward(50)
+            #     elif key == 's':    # 後進
+            #         drone.back(50)
+            #     elif key == 'a':    # 左移動
+            #         drone.left(50)
+            #     elif key == 'd':    # 右移動
+            #         drone.right(50)
+            #     elif key == 'q':    # 左旋回
+            #         drone.ccw(50)
+            #     elif key == 'e':    # 右旋回
+            #         drone.cw(50)
+            #     elif key == 'r':    # 上昇
+            #         drone.up(50)
+            #     elif key == 'f':    # 下降
+            #         drone.down(50)
+            #     elif key == 'p':    # 任意のタイミングでストップ
+            #         #drone.send_command('stop')
+            #         drone.send_command('emergency')
             
             # ウエイト(とりあえず固定で)
             time.sleep(0.05)

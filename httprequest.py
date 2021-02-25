@@ -48,11 +48,13 @@ class HTTPRequest:
         self.headers = {'Content-type': 'application/json', "X-CSRFToken": self.csrftoken}
 
     def send_qr(self, qrcode, pos: np.ndarray):
-        if self.sended.count(qrcode) > 0:
-            return
+        # if self.sended.count(qrcode) > 0:
+        #     return
         
+        print(pos)
+
         # 送信データ
-        prm = {"qrcode": qrcode, "pos_x": pos.x, "pos_y": pos.y, "pos_z": pos.z}
+        prm = {"qrcode": qrcode, "pos_x": str(pos[0]), "pos_y": str(pos[1]), "pos_z": str(pos[2])}
 
         # JSON変換
         params = json.dumps(prm)
