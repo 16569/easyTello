@@ -9,7 +9,7 @@ from .models import QR
 def list_records(request):
     qr = QR.objects.all()
     context = {
-        'title': 'QRList',
+        'title': '在庫状況',
         'qrcodes': qr
     }
     template = loader.get_template('qrcodes/list_qrcodes.html')
@@ -43,5 +43,5 @@ def receive(request):
         new_qr.save()
 
     # JSONに変換して戻す
-    ret = {"data": "param1:" + datas["param1"] + ",posx:" + datas["posx"] + ",posy:" + datas["posy"] + ",posz:" + datas["posz"]}
+    ret = {"data": "qrcode:" + datas["qrcode"] + ",posx:" + datas["posx"] + ",posy:" + datas["posy"] + ",posz:" + datas["posz"]}
     return JsonResponse(ret)

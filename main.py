@@ -1,11 +1,13 @@
 """Main"""
+import sys
+sys.stderr = open("error.log", "w")
+
 import time
 # import msvcrt
 import os
 import subprocess
 import cv2
 import sqlite3
-import sys
 import numpy as np
 from pyzbar import pyzbar
 from easytello.tello import Tello
@@ -40,6 +42,7 @@ def main():
     # #ブラウザ起動
     # os.system("start http://127.0.0.1/qrcodes/")
 
+    arg = input("コードを入力してください:")
 
     drone = Tello()
     drone.streamon()
@@ -48,7 +51,7 @@ def main():
     controller.append(CoCo(lambda : drone.set_speed(10)))
 
     # DB取得(出庫時想定)
-    if len(sys.argv) >= 2:
+    if len(arg) > 0:
 
         fixed_mode = False
 
@@ -57,13 +60,11 @@ def main():
         cur = conn.cursor()
         try:
             sql = "select pos_x, pos_y, pos_z from qrcodes_qr"
-            sql += " where qr_code = '{}'".format(sys.argv[1])
+            sql += " where qr_code = '{}'".format(arg)
             cur.execute(sql)
         except Exception as ex:
             print('SQL ERROR: {}'.format(ex))
         finally:
-            # print(cur.fetchall())
-            
             target_pos = cur.fetchall()
             print(target_pos)
             if len(target_pos[0]) == 3:
@@ -118,17 +119,42 @@ def main():
             conn.close()
 
     if fixed_mode:
-        controller.append(CoCo(drone.takeoff))
-        #平行移動
-        controller.append(CoCo(lambda : drone.up(max_height), np.array([0, max_height, 0])))
-        for i in range(height_step):
-            if i % 2 == 0:
-                # drone.left(max_LR)
-                controller.append(CoCo(lambda : drone.left(max_LR), np.array([-max_LR, 0, 0])))
-            else:
-                controller.append(CoCo(lambda : drone.right(max_LR), np.array([max_LR, 0, 0])))
-            controller.append(CoCo(lambda : drone.down(max_height/height_step), np.array([0, (int)(-max_height/height_step), 0])))
-        controller.append(CoCo(drone.land))
+        # controller.append(CoCo(drone.takeoff))
+        # #平行移動
+        # controller.append(CoCo(lambda : drone.up(max_height), np.array([0, max_height, 0])))
+        # for i in range(height_step):
+        #     if i % 2 == 0:
+        #         # drone.left(max_LR)
+        #         controller.append(CoCo(lambda : drone.left(max_LR), np.array([-max_LR, 0, 0])))
+        #     else:
+        #         controller.append(CoCo(lambda : drone.right(max_LR), np.array([max_LR, 0, 0])))
+        #     controller.append(CoCo(lambda : drone.down(max_height/height_step), np.array([0, (int)(-max_height/height_step), 0])))
+        # controller.append(CoCo(drone.land))
+
+        with open("commands.txt") as f:
+            for line in f:
+                if line.startswith("takeoff"):
+                    controller.append(CoCo(drone.takeoff))
+                if line.startswith("land"):
+                    controller.append(CoCo(drone.land))
+                if line.startswith("up"):
+                    distance = int(line.replace("up ", ""))
+                    controller.append(CoCo(lambda: drone.up(distance), np.array([0,distance,0])))
+                if line.startswith("down"):
+                    distance = int(line.replace("down ", ""))
+                    controller.append(CoCo(lambda: drone.down(distance), np.array([0,-distance,0])))
+                if line.startswith("left"):
+                    distance = int(line.replace("left ", ""))
+                    controller.append(CoCo(lambda: drone.left(distance), np.array([-distance,0,0])))
+                if line.startswith("right"):
+                    distance = int(line.replace("right ", ""))
+                    controller.append(CoCo(lambda: drone.right(distance), np.array([distance,0,0])))
+                if line.startswith("forward"):
+                    distance = int(line.replace("forward ", ""))
+                    controller.append(CoCo(lambda: drone.forward(distance), np.array([0,0,distance])))
+                if line.startswith("back"):
+                    distance = int(line.replace("back ", ""))
+                    controller.append(CoCo(lambda: drone.back(distance), np.array([0,0,-distance])))
 
     drone.set_controller(controller)
 
