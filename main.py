@@ -141,20 +141,20 @@ def main():
                     distance = int(line.replace("up ", ""))
                     controller.append(CoCo(lambda: drone.up(distance), np.array([0,distance,0])))
                 if line.startswith("down"):
-                    distance = int(line.replace("down ", ""))
-                    controller.append(CoCo(lambda: drone.down(distance), np.array([0,-distance,0])))
+                    distance1 = int(line.replace("down ", ""))
+                    controller.append(CoCo(lambda: drone.down(distance1), np.array([0,-distance1,0])))
                 if line.startswith("left"):
-                    distance = int(line.replace("left ", ""))
-                    controller.append(CoCo(lambda: drone.left(distance), np.array([-distance,0,0])))
+                    distance2 = int(line.replace("left ", ""))
+                    controller.append(CoCo(lambda: drone.left(distance2), np.array([-distance2,0,0])))
                 if line.startswith("right"):
-                    distance = int(line.replace("right ", ""))
-                    controller.append(CoCo(lambda: drone.right(distance), np.array([distance,0,0])))
+                    distance3 = int(line.replace("right ", ""))
+                    controller.append(CoCo(lambda: drone.right(distance3), np.array([distance3,0,0])))
                 if line.startswith("forward"):
-                    distance = int(line.replace("forward ", ""))
-                    controller.append(CoCo(lambda: drone.forward(distance), np.array([0,0,distance])))
+                    distance4 = int(line.replace("forward ", ""))
+                    controller.append(CoCo(lambda: drone.forward(distance4), np.array([0,0,distance4])))
                 if line.startswith("back"):
-                    distance = int(line.replace("back ", ""))
-                    controller.append(CoCo(lambda: drone.back(distance), np.array([0,0,-distance])))
+                    distance5 = int(line.replace("back ", ""))
+                    controller.append(CoCo(lambda: drone.back(distance5), np.array([0,0,-distance5])))
 
     drone.set_controller(controller)
 
